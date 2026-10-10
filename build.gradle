@@ -1,0 +1,96 @@
+// Minecraft 26.3+ ships unobfuscated, so we use the "net.fabricmc.fabric-loom"
+// plugin (the unobfuscated variant). Loom 1.18.2 declares a Gradle 9.7 plugin
+// API requirement, but runs fine on Gradle 9.6 - the attribute override below
+// lets Gradle 9.6 resolve it.
+buildscript {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    configurations.classpath {
+        attributes {
+            attribute(
+                org.gradle.api.attributes.plugin.GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+                project.objects.named(org.gradle.api.attributes.plugin.GradlePluginApiVersion, '9.7.0')
+            )
+        }
+    }
+    dependencies {
+        classpath 'net.fabricmc:fabric-loom:1.18.2'
+    }
+}
+
+apply plugin: 'net.fabricmc.fabric-loom'
+apply plugin: 'maven-publish'
+
+version = project.mod_version
+group = project.mod_group
+
+base {
+    archivesName = "${project.mod_id}-${project.minecraft_version}"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/releases'
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+    withSourcesJar()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    // Minecraft 26.3 is not obfuscated, so no mappings dependency is required.
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    // ModMenu integration is compile-only: the runtime stays optional.
+    compileOnly "com.terraformersmc:modmenu:21.0.0"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "loader_version", project.loader_version
+    inputs.property "minecraft_version", project.minecraft_version
+
+    filesMatching("fabric.mod.json") {
+        expand(
+            version: project.version,
+            loader_version: project.loader_version,
+            minecraft_version: project.minecraft_version
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+    }
+}

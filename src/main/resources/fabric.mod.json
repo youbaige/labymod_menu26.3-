@@ -1,0 +1,47 @@
+{
+	"schemaVersion": 1,
+	"id": "labymod_menu",
+	"version": "1.0.0",
+	"name": "labymod_menu",
+	"description": "Replaces the Minecraft loading logo with an animated Mojang Studios intro.",
+	"authors": [
+		"chara201x, chatgpt"
+	],
+	"contact": {
+		"homepage": "https://github.com/chara2015/labymod_menu",
+		"sources": "https://github.com/chara2015/labymod_menu",
+		"issues": "https://github.com/chara2015/labymod_menu/issues"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/labymod_menu/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"labymod_menu.LabyModMenuMod"
+		],
+		"client": [
+			"labymod_menu.client.LabyModMenuClient"
+		],
+		"modmenu": [
+			"labymod_menu.client.config.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"labymod_menu.mixins.json",
+		{
+			"config": "labymod_menu.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.3",
+		"java": ">=25"
+	},
+	"suggests": {
+		"modmenu": "*"
+	},
+	"breaks": {
+		"animated_mojang": "*"
+	}
+}
